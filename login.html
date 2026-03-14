@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense Tracker — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #4f46e5; --primary-dark: #3730a3;
+      --danger: #ef4444; --success: #10b981;
+      --border: #e2e8f0; --text: #1e293b; --muted: #64748b;
+      --radius: 14px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .auth-card {
+      background: #fff; border-radius: var(--radius);
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+      width: 100%; max-width: 420px; overflow: hidden;
+    }
+    .auth-header {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      padding: 2rem; text-align: center; color: #fff;
+    }
+    .auth-header .logo { font-size: 2.5rem; margin-bottom: .4rem; }
+    .auth-header h1 { font-size: 1.3rem; font-weight: 700; }
+    .auth-header p  { font-size: .85rem; opacity: .8; margin-top: .25rem; }
+
+    .tabs {
+      display: flex; border-bottom: 1px solid var(--border);
+    }
+    .tab-btn {
+      flex: 1; padding: .85rem; border: none; background: #f8fafc;
+      font-size: .875rem; font-weight: 600; color: var(--muted);
+      cursor: pointer; transition: all .2s;
+    }
+    .tab-btn.active { background: #fff; color: var(--primary); border-bottom: 2px solid var(--primary); }
+
+    .auth-body { padding: 1.75rem; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: .8rem; font-weight: 600; color: var(--muted); margin-bottom: .35rem; }
+    .form-group input {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 9px;
+      padding: .6rem .85rem; font-size: .875rem; color: var(--text);
+      transition: border-color .15s;
+    }
+    .form-group input:focus { outline: none; border-color: var(--primary); }
+
+    .btn {
+      width: 100%; padding: .75rem; border: none; border-radius: 9px;
+      font-size: .9rem; font-weight: 700; cursor: pointer;
+      background: var(--primary); color: #fff;
+      transition: background .15s, transform .1s;
+      margin-top: .5rem;
+    }
+    .btn:hover { background: var(--primary-dark); }
+    .btn:active { transform: scale(.98); }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+
+    .alert {
+      padding: .65rem .9rem; border-radius: 8px;
+      font-size: .82rem; margin-bottom: 1rem; display: none;
+    }
+    .alert.error   { background: #fee2e2; color: #b91c1c; display: block; }
+    .alert.success { background: #d1fae5; color: #065f46; display: block; }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin .6s linear infinite;
+      display: inline-block; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="auth-card">
+  <div class="auth-header">
+    <div class="logo">💰</div>
+    <h1>Expense Tracker</h1>
+    <p>Track your daily expenses easily</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+    <button class="tab-btn" onclick="switchTab('register')">Register</button>
+  </div>
+
+  <div class="auth-body">
+
+    <!-- Login Panel -->
+    <div class="tab-panel active" id="panel-login">
+      <div class="alert" id="login-alert"></div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="you@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" />
+      </div>
+      <button class="btn" id="login-btn" onclick="doLogin()">Login</button>
+    </div>
+
+    <!-- Register Panel -->
+    <div class="tab-panel" id="panel-register">
+      <div class="alert" id="register-alert"></div>
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="reg-name" placeholder="Juan Dela Cruz" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="you@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Password <span style="font-weight:400;color:#94a3b8">(min 6 characters)</span></label>
+        <input type="password" id="reg-password" placeholder="••••••••" />
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="reg-confirm" placeholder="••••••••" />
+      </div>
+      <button class="btn" id="register-btn" onclick="doRegister()">Create Account</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+  document.getElementById('panel-login').classList.toggle('active', tab==='login');
+  document.getElementById('panel-register').classList.toggle('active', tab==='register');
+}
+
+async function doLogin() {
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn      = document.getElementById('login-btn');
+  const alert    = document.getElementById('login-alert');
+
+  alert.className = 'alert';
+  if (!email || !password) return showAlert(alert, 'Please fill in all fields.', 'error');
+
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    const res  = await fetch('api/auth.php?action=login', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { showAlert(alert, data.error, 'error'); return; }
+    showAlert(alert, 'Login successful! Redirecting…', 'success');
+    setTimeout(() => window.location.href = 'index.php', 800);
+  } catch(e) {
+    showAlert(alert, 'Connection error. Try again.', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Login';
+  }
+}
+
+async function doRegister() {
+  const full_name = document.getElementById('reg-name').value.trim();
+  const email     = document.getElementById('reg-email').value.trim();
+  const password  = document.getElementById('reg-password').value;
+  const confirm   = document.getElementById('reg-confirm').value;
+  const btn       = document.getElementById('register-btn');
+  const alert     = document.getElementById('register-alert');
+
+  alert.className = 'alert';
+  if (!full_name || !email || !password) return showAlert(alert, 'Please fill in all fields.', 'error');
+  if (password !== confirm) return showAlert(alert, 'Passwords do not match.', 'error');
+  if (password.length < 6)  return showAlert(alert, 'Password must be at least 6 characters.', 'error');
+
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    const res  = await fetch('api/auth.php?action=register', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ full_name, email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { showAlert(alert, data.error, 'error'); return; }
+    showAlert(alert, 'Account created! Redirecting…', 'success');
+    setTimeout(() => window.location.href = 'index.php', 800);
+  } catch(e) {
+    showAlert(alert, 'Connection error. Try again.', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create Account';
+  }
+}
+
+function showAlert(el, msg, type) {
+  el.textContent = msg; el.className = 'alert ' + type;
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (document.getElementById('panel-login').classList.contains('active')) doLogin();
+  else doRegister();
+});
+</script>
+</body>
+</html>
